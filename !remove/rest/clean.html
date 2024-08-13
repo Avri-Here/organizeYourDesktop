@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Desktop Organizer Example</title>
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        user-select: none;
+        margin: 0;
+        padding: 0;
+        background-color: transparent;
+        /* color: white; */
+        font-family: Arial, sans-serif;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: center;
+      }
+
+      @keyframes flashBorder {
+        0% {
+          border-color: #0a74da;
+          /* Windows XP Blue */
+        }
+
+        50% {
+          border-color: rgb(123, 119, 147);
+        }
+
+        100% {
+          border-color: #0a74da;
+        }
+      }
+
+      .panel {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+        margin: 20px;
+        background-color: transparent;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        border: 3px solid antiquewhite;
+        animation: flashBorder 7s infinite;
+      }
+
+      .panel img {
+        width: 50px;
+        height: 50px;
+        margin: 5px;
+      }
+
+      #imgExe {
+        width: 40px;
+        height: 35px;
+        margin: 10px;
+      }
+
+      .panel div {
+        text-align: center;
+        /* color: white; */
+        margin-top: 0px;
+      }
+
+      .panel-title {
+        text-align: center;
+        /* color: white; */
+        font-size: 1.2em;
+        margin-bottom: 10px;
+      }
+
+      .items {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        max-width: calc(5 * 55px);
+      }
+
+      .item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0 5px;
+        width: 50px;
+        /* Adjust the width to match your design */
+      }
+
+      .item div {
+        font-size: 0.8em;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Programs Panel -->
+      <div class="panel">
+        <div class="panel-title">Programs</div>
+        <div class="items">
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Edge</div>
+          </div>
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Outlook</div>
+          </div>
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Excel</div>
+          </div>
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Word</div>
+          </div>
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Skype</div>
+          </div>
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Edge</div>
+          </div>
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Outlook</div>
+          </div>
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Excel</div>
+          </div>
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Word</div>
+          </div>
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Skype</div>
+          </div>
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Edge</div>
+          </div>
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Outlook</div>
+          </div>
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Excel</div>
+          </div>
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Word</div>
+          </div>
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Skype</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Folders Panel -->
+      <div class="panel">
+        <div class="panel-title">Folders</div>
+        <div class="items">
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Work</div>
+          </div>
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Data</div>
+          </div>
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>School</div>
+          </div>
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Home</div>
+          </div>
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Utilities</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documents Panel -->
+      <div class="panel">
+        <div class="panel-title">Documents</div>
+        <div class="items">
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Rule</div>
+          </div>
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Team</div>
+          </div>
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Weekend</div>
+          </div>
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Research</div>
+          </div>
+          <div class="item">
+            <img src="https://img.icons8.com/fluency/48/000000/skype.png" alt="Skype" />
+            <div>Directions</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

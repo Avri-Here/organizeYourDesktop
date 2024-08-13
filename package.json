@@ -1,0 +1,25 @@
+{
+  "name": "organize_your_desktop",
+  "version": "1.0.0",
+  "main": "src/app/main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Avri",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "electron": "^31.3.1",
+    "electron-reload": "^2.0.0-alpha.1"
+  },
+  "dependencies": {
+    "7zip": "^0.0.6",
+    "7zip-bin": "^5.2.0",
+    "electron-log": "^5.1.7",
+    "electron-store": "^8.1.0",
+    "file-icon-extractor": "^1.0.4",
+    "icon-extractor": "^1.0.3",
+    "icon-extractor-win": "^1.0.0",
+    "windows-shortcuts": "^0.1.6"
+  }
+}

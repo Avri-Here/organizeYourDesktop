@@ -1,0 +1,48 @@
+{
+  "name": "app-link-app",
+  "version": "1.6.0",
+  "description": "A powerful and user-friendly Electron application for managing your tasks efficiently.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder"
+  },
+  "author": "Avri",
+  "license": "ISC",
+  "dependencies": {
+    "dialog": "^0.3.1",
+    "electron-progressbar": "^2.0.1",
+    "electron-store": "^8.1.0",
+    "ini": "^4.1.1",
+    "sudo-prompt": "^9.2.1",
+    "sweetalert2": "^11.7.8"
+  },
+  "devDependencies": {
+    "electron": "^23.1.1",
+    "electron-builder": "^23.6.0",
+    "electron-packager": "^17.1.1"
+  },
+  "build": {
+    "productName": "AS-Team-App",
+    "appId": "com.example.AS-Team-App",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "html/**/*",
+      "img/**/*",
+      "style/**/*",
+      "utils/**/*",
+      "window/**/*",
+      "sound/**/*",
+      "main.js",
+      "package.json"
+    ],
+    "win": {
+      "appId": "App Link App",
+      "target": "nsis",
+      "publisherName": "AS-Team-App.com",
+      "icon": "./img/AppLogo.png"
+    }
+  }
+}

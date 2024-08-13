@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Settings</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .settings-field {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        input,
+        select {
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+        }
+
+        #settings {
+            text-align: center;
+            margin-bottom: 50px;
+            color: green;
+        }
+
+        .button {
+            background-color: #0070c0;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 8px;
+            border: none;
+            margin-left: 251px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="content">
+        <button id="backButton" class="back-button">
+            <span>&larr;</span>
+        </button>
+        <h1 id="settings">Set Your Settings</h1>
+        <div id="all-settings" style="display: flex; justify-content: space-between; ">
+            <div class="settings-field">
+                <label style="font-family: cursive;font-weight: bold;" for="ideSelect">Favorite Ide</label><br />
+                <select style="color: blue; margin-top: 15px;font-family: cursive;" id="ideSelect">
+                    <option value="vscode">VS Code</option>
+                    <option value="intellij">IntelliJ IDEA</option>
+                </select>
+            </div>
+            <div class="settings-field">
+                <label style="font-family: cursive;font-weight: bold ;" for="repoPath">Repository Folder</label><br />
+                <input style="color: blue; margin-top: 15px;font-family: cursive; background-color: white;"
+                    type="button" id="repoPath" value="Adjust Location" />
+            </div>
+            <div class="settings-field">
+                <label style="font-family: cursive;font-weight: bold;" for="runItPath">Credentials Script</label><br />
+                <input style="color: blue; margin-top: 15px;font-family: cursive; background-color: white;"
+                    type="button" id="credentialsPath" value="Adjust Location" />
+            </div>
+            <div class="settings-field">
+                <label style="font-family: cursive;font-weight: bold;" for="runItPath">IntelliJ Idea</label><br />
+                <input style="color: blue; margin-top: 15px;font-family: cursive; background-color: white;"
+                    type="button" id="intelliJPath" value="Adjust Location" />
+            </div>
+        </div>
+    </div>
+</body>
+<script defer src="../window/settingsPage.js"></script>
+
+</html>
