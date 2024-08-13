@@ -1,6 +1,10 @@
+
+
+
 const fs = require('fs');
 const path = require('path');
-
+const { join } = require('path');
+const { readdir, stat } = require('fs/promises');
 
 const ignoreList = [
     'node_modules', 'dist', '.git', 'coverage', 'logs',
@@ -8,6 +12,33 @@ const ignoreList = [
     '.cache', 'env',
 ];
 
+
+const getAllDirectories = async (dirPath) => {
+
+    const directories = [];
+
+    try {
+        const files = await readdir(dirPath);
+        for (const file of files) {
+            const fullPath = join(dirPath, file);
+            const fileStat = await stat(fullPath);
+            
+            if (fileStat.isDirectory()) {
+                const formattedDate = fileStat.mtime.toLocaleDateString('en-GB'); 
+                directories.push({
+                    fullPath,
+                    folderName: file,
+                    lastModified: formattedDate
+                });
+
+            }
+        }
+    } catch (error) {
+        console.error(`Error reading directory: ${error.message}`);
+    }
+
+    return directories;
+}
 
 const getAllFileRecursively = (dirPath, ignoreDirs = ignoreList) => {
     const files = fs.readdirSync(dirPath);
@@ -32,10 +63,10 @@ const filterScriptFiles = (files) => {
 
     const baseUrl = 'https://img.icons8.com/';
     const scriptCommands = {
-        '.py': { type: 'python', imgSrc: `${baseUrl}?size=36&id=12584&format=png&color=22C3E6` },
-        '.js': { type: 'node', imgSrc: `${baseUrl}?size=48&id=FQlr_bFSqEdG&format=png&color=22C3E6` },
-        '.bat': { type: 'cmd', imgSrc: `${baseUrl}?size=48&id=av89ZFRgol47&format=png&color=22C3E6` },
-        '.ps1': { type: 'powershell', imgSrc: `${baseUrl}?size=48&id=59499&format=png&color=22C3E6` }
+        '.py': { type: 'python', imgSrc: `${baseUrl}?size=64&id=12584&format=png&color=22C3E6` },
+        '.js': { type: 'node', imgSrc: `${baseUrl}?size=64&id=FQlr_bFSqEdG&format=png&color=22C3E6` },
+        '.bat': { type: 'cmd', imgSrc: `${baseUrl}?size=64&id=av89ZFRgol47&format=png&color=22C3E6` },
+        '.ps1': { type: 'powershell', imgSrc: `${baseUrl}?size=64&id=59499&format=png&color=22C3E6` }
     };
 
     return files.filter(file => {
@@ -57,5 +88,5 @@ const filterScriptFiles = (files) => {
 
 
 
-module.exports = { getAllFileRecursively, filterScriptFiles };
+module.exports = { getAllFileRecursively, filterScriptFiles, getAllDirectories };
 

@@ -48,14 +48,29 @@ const createDesktopWidget = () => {
     const primaryDisplay = screen.getPrimaryDisplay();
     const { width, height } = primaryDisplay.workAreaSize;
 
+    // Define the window height
+    console.log(width, height);
+
+    // const windowHeight = height - 150;
+    const windowHeight = height - 110;
+
+    // Calculate y-position for vertical centering
+    const yPos = (height - windowHeight) / 2;
+
+    // Create the main window
     const mainWindow = new BrowserWindow({
-        x: width - width / 4, y: 0,
-        width: width / 4, height: height / 1.5,
-        transparent: true, frame: false,
-        resizable: false, skipTaskbar: true,
-        webPreferences: { preload: path.join(__dirname, 'preload.js'), sandbox: false, },
+        width: width,  // You can specify a different width if needed
+        height: windowHeight,
+        x: 0,  // Start at the left edge of the screen (or set to another value)
+        y: yPos,  // Vertical centering
+        transparent: true,
+        frame: false,
+        resizable: false,
+        skipTaskbar: true,
+        webPreferences: { preload: path.join(__dirname, 'preload.js'), sandbox: false },
     });
-    mainWindow.webContents.openDevTools();
+
+    // mainWindow.webContents.openDevTools();
     mainWindow.loadFile(path.join(__dirname, '../pages/index/index.html'));
     // mainWindow.setIgnoreMouseEvents(true);
     mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });

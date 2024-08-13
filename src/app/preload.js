@@ -6,8 +6,8 @@ const shortcut = require('windows-shortcuts');
 const path = require('path'), fs = require('fs');
 const { extractorAndSaveIcon } = require('../utils/allTheRest');
 const desktopPath = path.join(require('os').homedir(), 'Desktop');
-const { executeScriptWithNoExit, openFile } = require('../utils/childProcess');
-const { getAllFileRecursively, filterScriptFiles } = require('../utils/fileExplorer');
+const { executeScriptWithNoExit, openFile, openFolder } = require('../utils/childProcess');
+const { getAllFileRecursively, filterScriptFiles, getAllDirectories } = require('../utils/fileExplorer');
 
 
 const addItemToPanel = (panelTitle, itemText, type, fullPath, imgSrc) => {
@@ -32,7 +32,21 @@ const addItemToPanel = (panelTitle, itemText, type, fullPath, imgSrc) => {
             executeScriptWithNoExit(type, fullPath);
             return;
         }
-        openFile(fullPath);
+
+        if (panelTitle === 'Programs') {
+            newImg.id = 'imgExe';
+            openFile(fullPath);
+            return;
+
+        }
+
+        if (panelTitle === 'Folders') {
+            newImg.id = 'imgExe';
+            openFolder(fullPath);
+            return;
+
+        }
+
     })
 
     newImg.id = 'imgExe'
@@ -54,11 +68,46 @@ const addItemToPanel = (panelTitle, itemText, type, fullPath, imgSrc) => {
 
 
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+
+    const desktopFolders = await getAllDirectories(desktopPath);
+
+
+    if (desktopFolders.length < 8) {
+        const foldersToAdd = 8 - desktopFolders.length;
+        for (let i = 0; i < foldersToAdd && i < additionalFolders.length; i++) {
+            desktopFolders.push(additionalFolders[i]);
+        }
+    }
+    else if (desktopFolders.length > 8 && desktopFolders.length % 4 !== 0) {
+
+        const nearestMultipleOfFour = Math.ceil(desktopFolders.length / 4) * 4;
+        const foldersToAdd = nearestMultipleOfFour - desktopFolders.length;
+        for (let i = 0; i < foldersToAdd && i < additionalFolders.length; i++) {
+            desktopFolders.push(additionalFolders[i]);
+        }
+    }
+    const icons = [
+        'https://img.icons8.com/?size=100&id=c2AXPLZ3iVEU&format=png&color=000000',
+        'https://img.icons8.com/?size=100&id=77253&format=png&color=000000',
+        'https://img.icons8.com/?size=100&id=65LJ4a8H0RQo&format=png&color=000000',
+        'https://img.icons8.com/?size=100&id=8DXp0OBYddF8&format=png&color=000000',
+        'https://img.icons8.com/?size=100&id=8DXp0OBYddF8&format=png&color=000000',
+        'https://img.icons8.com/?size=100&id=67363&format=png&color=000000',
+    ];
+    
+    desktopFolders.forEach(({ folderName, fullPath, lastModified }, index) => {
+        const imgSrc = icons[index % icons.length];
+        const title = `${folderName}\nLastModified : ${lastModified || 'unknown'}`;
+
+        addItemToPanel('Folders', folderName.toLowerCase(), title, fullPath, imgSrc);
+    });
 
     const desktopFiles = getAllFileRecursively(desktopPath);
     const scriptFiles = filterScriptFiles(desktopFiles);
     const shortcutFiles = desktopFiles.filter(file => file.endsWith('.lnk'));
+
+
 
     scriptFiles.forEach(({ name, type, fullPath, imgSrc }) => {
         addItemToPanel('Scripts', name, type, fullPath, imgSrc);
@@ -99,4 +148,24 @@ const fallbackImages = [
     'https://winaero.com/blog/wp-content/uploads/2015/09/hard-drive-disk-icon.png',
     'https://cdn.icon-icons.com/icons2/17/PNG/256/windows_win_2248.png',
     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQnBGxPBur-Kv2a_jdt_tbzhHJ8yAyKG_PN0A&s', 'https://winaero.com/blog/wp-content/uploads/2019/08/Save-icon-big-256.png'
+];
+
+
+const additionalFolders = [
+    {
+        fullPath: path.join(require('os').homedir(), 'Documents'),
+        folderName: 'doc'
+    },
+    {
+        fullPath: path.join(require('os').homedir(), 'Pictures'),
+        folderName: 'images'
+    },
+    {
+        fullPath: path.join(require('os').homedir(), 'Videos'),
+        folderName: 'vid'
+    },
+    {
+        fullPath: path.join(require('os').homedir(), 'Downloads'),
+        folderName: 'downloads'
+    },
 ];

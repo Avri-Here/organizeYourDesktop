@@ -21,7 +21,6 @@ body {
 @keyframes flashBorder {
     0% {
         border-color: #0a74da;
-        /* Windows XP Blue */
     }
 
     50% {
@@ -38,12 +37,12 @@ body {
     flex-direction: column;
     align-items: center;
     padding: 10px;
-    margin: 20px;
+    margin: 10px;
     background-color: transparent;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     border: 3px solid antiquewhite;
-    animation: flashBorder 7s infinite;
+    animation: flashBorder 5s infinite;
 }
 
 .panel img {
@@ -78,13 +77,10 @@ body {
     flex-wrap: wrap;
     max-width: calc(5 * 55px);
     height: calc(2 * 85px);
-    /* Adjust height to match the height of 2 rows */
     overflow-y: auto;
     scrollbar-width: none;
-    /* For Firefox */
 }
 
-/* For Chrome, Safari, and Edge */
 .items::-webkit-scrollbar {
     display: none;
 }
@@ -94,13 +90,37 @@ body {
     flex-direction: column;
     align-items: center;
     margin: 0 5px;
-    width: 50px;
-    /* Adjust the width to match your design */
 }
 
+
+
+
+
+.item2 div2 {
+    font-size: 0.8em;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+    word-wrap: break-word;
+    /* Allow long words to break and wrap to the next line */
+    text-align: center;
+    /* Ensure text is centered */
+    max-width: 50px;
+    /* Ensure the text doesn't exceed the item's width */
+}
+
+/* Truncate Text with Ellipsis */
 
 .item div {
     font-size: 0.8em;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+    overflow: hidden;
+    /* Ensure content doesn't overflow the container */
+    text-overflow: ellipsis;
+    /* Add ellipsis (...) to indicate truncated text */
+    white-space: nowrap;
+    /* Prevent text from wrapping to the next line */
+    text-align: center;
+    max-width: 50px;
+    /* Ensure the text doesn't exceed the item's width */
 }

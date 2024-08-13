@@ -14,7 +14,7 @@ const extractorAndSaveIcon = (filePath, fileName, saveOn = savePathDefault) => {
             console.log(savePath);
 
 
-            const scriptPath = path.join(__dirname, '../assets/scripts/extractIcon.ps1');
+            const scriptPath = path.join(__dirname, '../assets/scripts/extractIconFromExe.ps1');
             execFile('powershell.exe', ['-ExecutionPolicy', 'Bypass', '-File', scriptPath, filePath, savePath], (error, stdout, stderr) => {
                 if (error) {
                     reject(new Error("Failed to extract and save icon: " + error.message));

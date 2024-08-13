@@ -75,4 +75,17 @@ const openFile = (filePath) => {
     });
 }
 
-module.exports = { executeScriptWithNoExit, executePsScriptOnBackground, openFile };
+
+
+const openFolder = (folderLocation) => {
+
+    try {
+        exec("explorer " + folderLocation);
+    } catch (error) {
+        console.log(error);
+    }
+
+};
+
+
+module.exports = { executeScriptWithNoExit, executePsScriptOnBackground, openFile, openFolder };
