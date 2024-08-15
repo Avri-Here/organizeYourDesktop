@@ -100,6 +100,18 @@ const addFolderIfNeeded = (desktopFolders) => {
 
     return originalDesktopFolders;
 }
+
+
+
+
+
+
+
+const { spawn } = require("child_process");
+
+
+
+
 document.addEventListener('DOMContentLoaded', async () => {
 
     initializePanels();
@@ -118,12 +130,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         addItemToPanel('Folders', name.toLowerCase(), title, fullPath, imgSrc);
     });
 
-    // console.log('shortcutFiles Path :', shortcutFiles);
+    // console.log('Shortcut Path :', shortcutPath);
 
-    shortcutFiles.forEach(async ({ fullPath: shortcutPath, name }) => {
-    // shortcutFiles.splice(6, 8).forEach(async ({ fullPath: shortcutPath, name }) => {
+    shortcutFiles.splice(0, 4).forEach(async ({ fullPath: shortcutPath, name }) => {
         shortcut.query(shortcutPath, (async (err, { target }) => {
 
+            // console.log('Shortcut Info :', shortcutInfo);
             // console.log('Shortcut Info :', shortcutInfo.desc);
 
             if (err) {
@@ -131,22 +143,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            const imgPathDefault = path.join(userHome, 'organizeYourDesktop', 'img', name.split(' ')[0] + '.png');
+            const imgPathDefault = path.join(userHome, 'organizeYourDesktop', 'img', name + '.png');
             // console.log('Img Exists :', imgPathDefault);
 
 
             // const exeFile = { location: shortcutInfo.target, name: path.basename(shortcutPath).split('.')[0] };
-            // if (target.includes('86')) return;
+
 
             // try {
-            
-            // if (false) {
             if (!fs.existsSync(imgPathDefault)) {
-                console.log('Extracting Icon from :', target);
                 fs.mkdirSync(path.join(userHome, 'organizeYourDesktop', 'img'), { recursive: true });
-                process.env.EXE_PATH = target;
-                // const Path = { '-Path': target };
-                // const Destination = { '-Destination': path.join(userHome, 'organizeYourDesktop', 'img', name + '.png') };
+                const Path = { '-Path': target };
+                const Destination = { '-Destination': path.join(userHome, 'organizeYourDesktop', 'img', name + '.png') };
                 await runPowerShellFile('extractIconFromExe.ps1');
 
             }
@@ -155,7 +163,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // }
 
-            addItemToPanel('Programs', name, name.split(' ')[0], shortcutPath, imgPathDefault);
+            // addItemToPanel('Programs', exeFile.name, exeFile.name.split(' ')[0], shortcutPath, "imgPathDefault");
 
         }));
 

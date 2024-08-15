@@ -1,4 +1,4 @@
-﻿# param (
+# param (
 #     $arg1,
 #     $arg2
 # )
