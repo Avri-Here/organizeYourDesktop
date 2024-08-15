@@ -16,6 +16,7 @@
     "electron-log": "^5.1.7",
     "electron-store": "^8.1.0",
     "node-global-key-listener": "^0.3.0",
+    "node-powershell": "^4.0.0",
     "windows-shortcuts": "^0.1.6"
   }
 }

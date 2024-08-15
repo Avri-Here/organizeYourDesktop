@@ -4,18 +4,20 @@ const { execFile } = require('child_process');
 
 const savePathDefault = path.join(userHome, 'organizeYourDesktop', 'img');
 
+
+
+
+
 const extractorAndSaveIcon = (filePath, fileName, saveOn = savePathDefault) => {
 
     return new Promise((resolve, reject) => {
         try {
-            // const fileName = path.basename(filePath).split('.')[0];
-            const savePath = path.join(saveOn, `${fileName}.png`);
 
-            console.log(savePath);
+            const savePath = path.join(saveOn, `${fileName}.png`);
 
 
             const scriptPath = path.join(__dirname, '../assets/scripts/extractIconFromExe.ps1');
-            execFile('powershell.exe', ['-ExecutionPolicy', 'Bypass', '-File', scriptPath, filePath, savePath], (error, stdout, stderr) => {
+            execFile('powershell.exe', ['-ExecutionPolicy', 'Bypass', '-File', scriptPath, filePath, savePath], (error) => {
                 if (error) {
                     reject(new Error("Failed to extract and save icon: " + error.message));
                 } else {

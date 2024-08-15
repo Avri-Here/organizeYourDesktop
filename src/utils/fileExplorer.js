@@ -2,16 +2,24 @@
 
 
 const fs = require('fs');
+const fsPromises = require('fs').promises;
 const path = require('path');
 const { join } = require('path');
+const { exec } = require('child_process');
 const { readdir, stat } = require('fs/promises');
+
+
+
+
+
+
+
 
 const ignoreList = [
     'node_modules', 'dist', '.git', 'coverage', 'logs',
     'temp', 'tmp', 'out', 'build', '.idea', '.vscode',
     '.cache', 'env',
 ];
-
 
 const getAllDirectories = async (dirPath) => {
 
@@ -22,9 +30,9 @@ const getAllDirectories = async (dirPath) => {
         for (const file of files) {
             const fullPath = join(dirPath, file);
             const fileStat = await stat(fullPath);
-            
+
             if (fileStat.isDirectory()) {
-                const formattedDate = fileStat.mtime.toLocaleDateString('en-GB'); 
+                const formattedDate = fileStat.mtime.toLocaleDateString('en-GB');
                 directories.push({
                     fullPath,
                     folderName: file,
@@ -40,7 +48,10 @@ const getAllDirectories = async (dirPath) => {
     return directories;
 }
 
+
+
 const getAllFileRecursively = (dirPath, ignoreDirs = ignoreList) => {
+
     const files = fs.readdirSync(dirPath);
     const arrayOfFiles = [];
 
@@ -59,6 +70,28 @@ const getAllFileRecursively = (dirPath, ignoreDirs = ignoreList) => {
     return arrayOfFiles;
 };
 
+
+const getFolderAndFiles = async (folderPath) => {
+
+    const entries = await fsPromises.readdir(folderPath, { withFileTypes: true });
+
+    const files = [];
+    const folders = [];
+
+    for (const entry of entries) {
+
+        const fullPath = join(folderPath, entry.name);
+        const fileStat = await stat(fullPath);
+        const lastModified = fileStat.mtime.toLocaleDateString('en-GB');
+        if (entry.isDirectory()) {
+            folders.push({ fullPath, name: entry.name, lastModified });
+        } else if (entry.isFile()) {
+            files.push({ fullPath, name: entry.name, lastModified });
+        }
+    }
+
+    return { files, folders };
+};
 const filterScriptFiles = (files) => {
 
     const baseUrl = 'https://img.icons8.com/';
@@ -84,9 +117,29 @@ const filterScriptFiles = (files) => {
 };
 
 
+const openFile = (filePath) => {
+    console.log(filePath);
+    exec(`"${filePath}"`, (error) => {
+        if (error) {
+            console.error('Failed to open the file:', error);
+            return;
+        }
+        console.log('File opened successfully!');
+    });
+}
 
 
 
+const openFolder = (folderLocation) => {
 
-module.exports = { getAllFileRecursively, filterScriptFiles, getAllDirectories };
+    try {
+        exec("explorer " + folderLocation);
+    } catch (error) {
+        console.log(error);
+    }
+
+};
+
+
+module.exports = { getAllFileRecursively, filterScriptFiles, getAllDirectories, openFile, openFolder, getFolderAndFiles };
 

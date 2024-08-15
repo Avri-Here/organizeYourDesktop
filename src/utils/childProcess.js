@@ -1,10 +1,14 @@
 
 
+const path = require('path');
 const console = require('electron-log');
+const Shell = require('node-powershell');
 const { exec } = require('child_process');
 
-const getCommandBaseType = (type, fullPath) => {
 
+
+
+const getCommandBaseType = (type, fullPath) => {
     switch (type) {
         case 'python':
             return `python "${fullPath}"`;
@@ -15,12 +19,11 @@ const getCommandBaseType = (type, fullPath) => {
         case 'node':
             return `node "${fullPath}"`;
         default:
-            console.warn('Unknown script type :', type);
             return `"${fullPath}"`;
     }
 }
 
-
+// no async here !!
 const executeScriptWithNoExit = (type, fullPath) => {
 
     const scriptName = fullPath.split('\\').pop();
@@ -41,51 +44,55 @@ const executeScriptWithNoExit = (type, fullPath) => {
 };
 
 
-const executePsScriptOnBackground = (scriptPath) => {
-    return new Promise((resolve, reject) => {
-        const command = `powershell.exe -ExecutionPolicy Bypass -File "${scriptPath}"`;
+const runPowerShellFile = async (scriptName, params = [], asAdmin) => {
 
-        exec(command, (error, stdout, stderr) => {
-            if (error) {
-                console.error(`Error executing PowerShell script: ${error.message}`);
-                reject(error);
-                return;
-            }
-            if (stderr) {
-                console.error(`PowerShell script stderr: ${stderr}`);
-                reject(stderr);
-                return;
-            }
-            console.log(`PowerShell script ran successfully!`);
-            resolve(stdout);
-        });
-    });
-};
+    const ps = new Shell({ executionPolicy: 'Bypass', noProfile: true });
+    const ps1FilePath = path.join(__dirname, '../assets/scripts/ps1', `${scriptName}`);
 
 
 
-const openFile = (filePath) => {
-    console.log(filePath);
-    exec(`"${filePath}"`, (error) => {
-        if (error) {
-            console.error('Failed to open the file:', error);
-            return;
-        }
-        console.log('File opened successfully!');
-    });
-}
+    const paramString = params.map(param => { return Object.entries(param).map(([key, value]) => `${key} "${value}"`).join(' ') }).join(' ');
 
+    console.log(`paramString : `, paramString);
+    const command = asAdmin
+        ? `Start-Process PowerShell -ArgumentList '-ExecutionPolicy Bypass -File "${ps1FilePath}" ${paramString}' -Verb RunAs`
+        : `& "${ps1FilePath}" ${paramString}`;
 
-
-const openFolder = (folderLocation) => {
 
     try {
-        exec("explorer " + folderLocation);
-    } catch (error) {
-        console.log(error);
+        await ps.invoke(command);
+        console.log(`powerShell.invoke(${scriptName}) ..`);
+    } catch (err) {
+        console.error(`powerShell.Error(${scriptName}) ..`, err);
     }
-
 };
 
 
-module.exports = { executeScriptWithNoExit, executePsScriptOnBackground, openFile, openFolder };
+
+
+module.exports = { executeScriptWithNoExit, runPowerShellFile };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// const userHome = require('os').homedir();
+// const exePath = { '-exePath': path.join("C:", "Program Files", "notepad", "app", "notepad.exe") };
+// const savePath = { savePath: path.join(userHome, 'organizeYourDesktop', 'img', 'notepad.lnk' + '.png') };
+
+// runPowerShellFile('extractIconFromExe.ps1', [exePath, savePath]);
+
+// runPsScript('exampleScript.ps1', ['param1Value', 'param2Value']);
+
+// runPsScript('exampleScript.ps1', ['param1Value', 'param2Value'], true);
