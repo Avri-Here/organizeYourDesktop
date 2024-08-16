@@ -14,7 +14,7 @@ Write-Output $UserProfilePath
 
 $Path = $env:EXE_PATH
 
-$Destination = $UserProfilePath + "\organizeYourDesktop\img"
+$Destination = $UserProfilePath + "\organizeYourDesktop\img\exe"
 
 $Format = "png"
 

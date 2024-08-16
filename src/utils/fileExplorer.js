@@ -15,6 +15,12 @@ const ignoreList = [
     '.cache', 'env',
 ];
 
+
+const isThisScriptFile = (fileName) => {
+    const scriptExtensions = ['.js', '.py', '.bat', '.ps1'];
+    return scriptExtensions.some(ext => fileName.endsWith(ext));
+};
+
 const getAllDirectories = async (dirPath) => {
 
     const directories = [];
@@ -112,7 +118,7 @@ const filterScriptFiles = (files) => {
 
 
 const openFile = (filePath) => {
-    console.log(filePath);
+
     exec(`"${filePath}"`, (error) => {
         if (error) {
             console.error('Failed to open the file:', error);
@@ -135,5 +141,9 @@ const openFolder = (folderLocation) => {
 };
 
 
-module.exports = { getAllFileRecursively, filterScriptFiles, getAllDirectories, openFile, openFolder, getFolderAndFiles };
+module.exports = {
+    getAllFileRecursively, filterScriptFiles,
+    getAllDirectories, openFile, openFolder,
+    getFolderAndFiles, isThisScriptFile
+};
 

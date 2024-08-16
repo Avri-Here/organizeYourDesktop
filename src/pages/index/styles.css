@@ -124,3 +124,11 @@ body {
     max-width: 50px;
     /* Ensure the text doesn't exceed the item's width */
 }
+
+.icon {
+    width: 24px;
+    /* Set your desired size */
+    height: 24px;
+    fill: white;
+    /* Change the icon color to white */
+}

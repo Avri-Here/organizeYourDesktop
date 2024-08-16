@@ -1,21 +1,26 @@
 
 
 
-
 const path = require('path');
+const HMC = require('hmc-win32');
 const log = require('electron-log');
+let mainWindow, rightClickCount = 0;
 const createTray = require('./tray');
-const { runPowerShellFile } = require('../utils/childProcess');
 require('electron-reload')(path.join(__dirname, '../..'));
-const { app, BrowserWindow, screen } = require('electron');
+const { runPowerShellFile } = require('../utils/childProcess');
 const { getValue, setValue } = require('../utils/electronStore');
+const { GlobalKeyboardListener } = require('node-global-key-listener');
+const { app, BrowserWindow, screen, ipcMain, dialog } = require('electron');
+const { desktopCapturer, session } = require('electron')
 
+
+const keyListener = new GlobalKeyboardListener();
 
 const createDesktopWidget = () => {
 
     const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 
-    const mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         x: width - width / 4, y: 0,
         transparent: true, frame: false,
         width: width / 4, height: height,
@@ -48,7 +53,11 @@ const createDesktopWidget = () => {
 
 app.whenReady().then(async () => {
 
+
+
     log.info('whenReady - Event !');
+    addEventListener();
+    log.info('desktopIconsDisplay', getValue('desktopIconsDisplay'))
 
     if (getValue('desktopIconsDisplay') === 'on' || getValue('desktopIconsDisplay') == null) {
         await runPowerShellFile('toggleDesktopIcons.ps1');
@@ -58,6 +67,8 @@ app.whenReady().then(async () => {
     }
 
     createDesktopWidget();
+
+
 });
 
 
@@ -65,7 +76,7 @@ app.on('before-quit', async (event) => {
 
     event.preventDefault();
     log.info('before-quit - Event!');
-
+    keyListener.stop();
     if (getValue('desktopIconsDisplay') === 'off' || getValue('desktopIconsDisplay') == null) {
         await runPowerShellFile('toggleDesktopIcons.ps1');
         setValue('desktopIconsDisplay', 'on');
@@ -75,46 +86,102 @@ app.on('before-quit', async (event) => {
 });
 
 
+ipcMain.handle('open-dialog', async (_, options) => {
+    const result = await dialog.showMessageBox(options);
+    return result;
+});
+
+
+
+
+const { getForegroundWindow, getWindowTitle, getAllWindows, getWindowRect } = require('hmc-win32');
+
+
+async function isOnDesktop() {
+    // Wait a moment to ensure the correct active window is retrieved
+    await new Promise(resolve => setTimeout(resolve, 100));
+    const activeWindowHandle = getForegroundWindow();
+
+    const title = getWindowTitle(activeWindowHandle);
+    console.log("Active Window Title:", title);
+    if (!title) {
+        // console.log("No title detected, assuming desktop.");
+        return true; // Likely the desktop
+    }
+}
+
+const addEventListener = () => {
+
+    keyListener.addListener(async e => {
+
+
+        const activeWindowHandle = getForegroundWindow();
+
+        const title = getWindowTitle(activeWindowHandle);
+
+        // if (e.name === 'MOUSE RIGHT' && e.state === "DOWN") {
+
+        //     await isOnDesktop()
+        // }
+
+        const resetCounter = () => { setTimeout(() => { rightClickCount = 0 }, 500); };
+        // const isFocused = mainWindow.isFocused();
+        // const isVisible = mainWindow.isVisible();
+
+        // if (!isFocused || !isVisible) {
+        //     return;
+        // }
+        if (e.name === 'MOUSE LEFT' && e.state === "DOWN" && await isOnDesktop()) {
+
+            rightClickCount++;
+
+            if (rightClickCount === 2) {
+                console.log("Detected two right-clicks in a row!");
+                rightClickCount = 0;
+
+                if (mainWindow.isVisible()) {
+                    await runPowerShellFile('toggleDesktopIcons.ps1');
+                    setValue('desktopIconsDisplay', 'on');
+                    mainWindow.hide();
+                } else {
+                    await runPowerShellFile('toggleDesktopIcons.ps1');
+                    setValue('desktopIconsDisplay', 'off');
+                    mainWindow.show();
+                }
+            } else {
+                resetCounter();
+            }
+
+        }
+    });
+}
 
 
 
 
 
 
+// main.js
+
+app.whenReady().then(() => {
+
+
+
+})
 
 
 
 
-
-
-
-// const keyListener = new GlobalKeyboardListener();
-// const { GlobalKeyboardListener } = require('node-global-key-listener');
-
-// let rightClickCount = 0;
 // app.on('will-quit', () => {
 //     keyListener.stop();
 // });
 
+// let rightClickCount = 0;
 
 // app.whenReady().then(async () => {
 
 
 //     console.log('Listening for MOUSE LEFT ...');
-
-//     keyListener.addListener((e, down) => {
-
-
-//         function isMainWindowDisplayed() {
-//             // Check if the window is visible and not minimized
-//             return mainWindow.isVisible() && !mainWindow.isMinimized();
-//         }
-
-//         // if (isMainWindowDisplayed()) {
-//         //     console.log("The mainWindow is displayed and not hidden or minimized.");
-//         // } else {
-//         //     console.log("The mainWindow is either hidden, minimized, or obscured by other windows.");
-//         // }
 
 
 
@@ -130,27 +197,7 @@ app.on('before-quit', async (event) => {
 
 
 
-//         const resetCounter = () => {
-//             setTimeout(() => { rightClickCount = 0 }, 500);
-//         };
-//         // const isOnDesktop = true
 
-//         // if (isOnDesktop) {
-//         //     console.log(`Click on desktop detected at (${x}, ${y})`);
-
-//         // }
-//         if (e.name === 'MOUSE LEFT' && e.state === "DOWN") {
-//             rightClickCount++;
-//             console.log(rightClickCount);
-
-//             if (rightClickCount === 2) {
-//                 console.log("Detected two right-clicks in a row!");
-//                 rightClickCount = 0;
-//             } else {
-//                 resetCounter();
-//             }
-//         }
-//     });
 
 
 // });
@@ -192,3 +239,33 @@ app.on('before-quit', async (event) => {
 // mainWindow.on('restore', () => {
 //     console.log('The mainWindow is restored from minimized state');
 // });
+
+
+
+
+
+
+
+
+
+
+
+//    const prompt = require('electron-prompt');
+
+//     prompt({
+//         title: 'Prompt example',
+//         label: 'URL:',
+//         value: 'http://example.org',
+//         // inputAttrs: {
+//         //     type: 'url'
+//         // },
+//         // type: 'input'
+//     })
+//         .then((r) => {
+//             if (r === null) {
+//                 console.log('user cancelled');
+//             } else {
+//                 console.log('result', r);
+//             }
+//         })
+//         .catch(console.error);

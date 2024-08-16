@@ -8,15 +8,18 @@ const { exec } = require('child_process');
 
 
 
-const getCommandBaseType = (type, fullPath) => {
+const getCommandBaseType = (fullPath) => {
+
+    const type = path.extname(fullPath);
+
     switch (type) {
-        case 'python':
+        case '.py':
             return `python "${fullPath}"`;
-        case 'powershell':
+        case '.ps1':
             return `powershell.exe -NoExit -ExecutionPolicy Bypass -File "${fullPath}"`;
-        case 'cmd':
+        case '.bat':
             return `"${fullPath}"`;
-        case 'node':
+        case '.js':
             return `node "${fullPath}"`;
         default:
             return `"${fullPath}"`;
@@ -24,10 +27,10 @@ const getCommandBaseType = (type, fullPath) => {
 }
 
 // no async here !!
-const executeScriptWithNoExit = (type, fullPath) => {
+const executeScriptWithNoExit = (fullPath) => {
 
     const scriptName = fullPath.split('\\').pop();
-    const command = getCommandBaseType(type, fullPath);
+    const command = getCommandBaseType(fullPath);
     const cmdCommand = `start cmd /k "title ${scriptName} && color 2 && ${command}"`;
 
     exec(cmdCommand, (error, stdout, stderr) => {
@@ -38,6 +41,9 @@ const executeScriptWithNoExit = (type, fullPath) => {
         if (stderr) {
             console.error(`Script error : ${stderr}`);
             return;
+        }
+        if (stdout) {
+            console.info(`stdout`);
         }
         console.log(`Script ${scriptName} Run !`);
     });
