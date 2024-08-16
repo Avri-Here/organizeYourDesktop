@@ -53,8 +53,6 @@ const createDesktopWidget = () => {
 
 app.whenReady().then(async () => {
 
-
-
     log.info('whenReady - Event !');
     addEventListener();
     log.info('desktopIconsDisplay', getValue('desktopIconsDisplay'))
@@ -91,52 +89,32 @@ ipcMain.handle('open-dialog', async (_, options) => {
     return result;
 });
 
+const { getForegroundWindow, getWindowTitle } = require('hmc-win32');
 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-
-const { getForegroundWindow, getWindowTitle, getAllWindows, getWindowRect } = require('hmc-win32');
-
-
-async function isOnDesktop() {
-    // Wait a moment to ensure the correct active window is retrieved
-    await new Promise(resolve => setTimeout(resolve, 100));
+const isOnDesktop = async () => {
+    await delay(100);
     const activeWindowHandle = getForegroundWindow();
-
     const title = getWindowTitle(activeWindowHandle);
-    console.log("Active Window Title:", title);
-    if (!title) {
-        // console.log("No title detected, assuming desktop.");
-        return true; // Likely the desktop
-    }
+    // console.log("Active Window Title:", title);
+    return !title;
 }
 
 const addEventListener = () => {
+    let rightClickCount = 0;
+    const resetCounter = () => setTimeout(() => { rightClickCount = 0 }, 1000);
 
     keyListener.addListener(async e => {
-
-
-        const activeWindowHandle = getForegroundWindow();
-
-        const title = getWindowTitle(activeWindowHandle);
-
-        // if (e.name === 'MOUSE RIGHT' && e.state === "DOWN") {
-
-        //     await isOnDesktop()
-        // }
-
-        const resetCounter = () => { setTimeout(() => { rightClickCount = 0 }, 500); };
-        // const isFocused = mainWindow.isFocused();
-        // const isVisible = mainWindow.isVisible();
-
-        // if (!isFocused || !isVisible) {
-        //     return;
-        // }
-        if (e.name === 'MOUSE LEFT' && e.state === "DOWN" && await isOnDesktop()) {
+        if (e.name === 'MOUSE LEFT' && e.state === "DOWN") {
+        
+        
+            const isDesktop = await isOnDesktop();
+            if (!isDesktop) return;
 
             rightClickCount++;
-
             if (rightClickCount === 2) {
-                console.log("Detected two right-clicks in a row!");
+                console.log("Detected two right-clicks on Desktop !!");
                 rightClickCount = 0;
 
                 if (mainWindow.isVisible()) {
@@ -151,24 +129,9 @@ const addEventListener = () => {
             } else {
                 resetCounter();
             }
-
         }
     });
 }
-
-
-
-
-
-
-// main.js
-
-app.whenReady().then(() => {
-
-
-
-})
-
 
 
 

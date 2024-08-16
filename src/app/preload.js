@@ -13,16 +13,44 @@ const { executeScriptWithNoExit, runPowerShellFile } = require('../utils/childPr
 
 
 
-const initializePanels = () => {
+// const initializePanels = () => {
 
+//     const container = document.querySelector('.container');
+//     const panels = ['Files', 'Programs', 'Folders'];
+//     // const panels = ['Scripts', 'Programs', 'Folders'];
+
+//     panels.forEach(title => {
+
+//         const panel = document.createElement('div');
+//         panel.classList.add('panel');
+
+//         const panelTitleDiv = document.createElement('div');
+//         panelTitleDiv.classList.add('panel-title');
+//         panelTitleDiv.textContent = title;
+
+//         const itemsDiv = document.createElement('div');
+//         itemsDiv.classList.add('items');
+
+//         panel.appendChild(panelTitleDiv);
+//         panel.appendChild(itemsDiv);
+//         container.appendChild(panel);
+//     });
+// };
+
+
+const initializePanels = () => {
     const container = document.querySelector('.container');
     const panels = ['Files', 'Programs', 'Folders'];
-    // const panels = ['Scripts', 'Programs', 'Folders'];
 
-    panels.forEach(title => {
-
+    panels.forEach((title, index) => {
         const panel = document.createElement('div');
         panel.classList.add('panel');
+        panel.draggable = true;
+        panel.dataset.index = index; // Store the initial index
+
+        panel.addEventListener('dragstart', handleDragStart);
+        panel.addEventListener('dragover', handleDragOver);
+        panel.addEventListener('drop', handleDrop);
 
         const panelTitleDiv = document.createElement('div');
         panelTitleDiv.classList.add('panel-title');
@@ -36,6 +64,37 @@ const initializePanels = () => {
         container.appendChild(panel);
     });
 };
+
+const handleDragStart = (e) => {
+    e.dataTransfer.setData('text/plain', e.target.dataset.index);
+    e.target.classList.add('dragging');
+};
+
+const handleDragOver = (e) => {
+    e.preventDefault(); // Necessary to allow drop
+    const draggingPanel = document.querySelector('.dragging');
+    const container = draggingPanel.parentNode;
+    const panels = Array.from(container.children);
+    const currentPanel = e.currentTarget;
+
+    const draggingIndex = panels.indexOf(draggingPanel);
+    const currentIndex = panels.indexOf(currentPanel);
+
+    if (draggingIndex < currentIndex) {
+        container.insertBefore(draggingPanel, currentPanel.nextSibling);
+    } else {
+        container.insertBefore(draggingPanel, currentPanel);
+    }
+};
+
+const handleDrop = (e) => {
+    e.preventDefault(); // Prevent default drop behavior
+    const draggingPanel = document.querySelector('.dragging');
+    draggingPanel.classList.remove('dragging');
+
+    // Optional: Update dataset indices or any other state if necessary
+};
+
 
 const handleItemClick = async (panelTitle, fullPath) => {
 

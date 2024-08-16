@@ -132,3 +132,7 @@ body {
     fill: white;
     /* Change the icon color to white */
 }
+
+.panel.dragging {
+    opacity: 0.5;
+}
