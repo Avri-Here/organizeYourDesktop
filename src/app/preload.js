@@ -87,6 +87,7 @@ const handleDragOver = (e) => {
     }
 };
 
+
 const handleDrop = (e) => {
     e.preventDefault(); // Prevent default drop behavior
     const draggingPanel = document.querySelector('.dragging');
