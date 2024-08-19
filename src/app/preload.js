@@ -1,26 +1,56 @@
 
 
+const hmcWin32 = require('hmc-win32');
 const console = require('electron-log');
 const userHome = require('os').homedir();
-const shortcut = require('windows-shortcuts');
+const { ipcRenderer } = require('electron');
 const path = require('path'), fs = require('fs');
-const desktopPath = path.join(require('os').homedir(), 'Desktop');
 const { openFile, openFolder } = require('../utils/fileExplorer');
+const desktopPath = path.join(require('os').homedir(), 'Desktop');
+const { getFolderAndFiles, isThisScriptFile } = require('../utils/fileExplorer');
 const { executeScriptWithNoExit, runPowerShellFile } = require('../utils/childProcess');
-const { getAllFileRecursively, filterScriptFiles, getAllDirectories, getFolderAndFiles } = require('../utils/fileExplorer');
+// const { getAllFileRecursively, filterScriptFiles, getAllDirectories, isThisScriptFile } = require('../utils/fileExplorer');
 
+
+
+// const initializePanels = () => {
+
+//     const container = document.querySelector('.container');
+//     const panels = ['Files', 'Programs', 'Folders'];
+//     // const panels = ['Scripts', 'Programs', 'Folders'];
+
+//     panels.forEach(title => {
+
+//         const panel = document.createElement('div');
+//         panel.classList.add('panel');
+
+//         const panelTitleDiv = document.createElement('div');
+//         panelTitleDiv.classList.add('panel-title');
+//         panelTitleDiv.textContent = title;
+
+//         const itemsDiv = document.createElement('div');
+//         itemsDiv.classList.add('items');
+
+//         panel.appendChild(panelTitleDiv);
+//         panel.appendChild(itemsDiv);
+//         container.appendChild(panel);
+//     });
+// };
 
 
 const initializePanels = () => {
-
     const container = document.querySelector('.container');
-    const panels = ['Scripts', 'Programs', 'Folders'];
+    const panels = ['Files', 'Programs', 'Folders'];
 
-    panels.forEach(title => {
+    panels.forEach((title, index) => {
         const panel = document.createElement('div');
         panel.classList.add('panel');
-        panel.style.width = '275px';
-        panel.style.height = '120px';
+        panel.draggable = true;
+        panel.dataset.index = index; // Store the initial index
+
+        panel.addEventListener('dragstart', handleDragStart);
+        panel.addEventListener('dragover', handleDragOver);
+        panel.addEventListener('drop', handleDrop);
 
         const panelTitleDiv = document.createElement('div');
         panelTitleDiv.classList.add('panel-title');
@@ -35,15 +65,83 @@ const initializePanels = () => {
     });
 };
 
-const handleItemClick = (panelTitle, type, fullPath) => {
+const handleDragStart = (e) => {
+    e.dataTransfer.setData('text/plain', e.target.dataset.index);
+    e.target.classList.add('dragging');
+};
 
-    if (panelTitle === 'Scripts') executeScriptWithNoExit(type, fullPath);
+const handleDragOver = (e) => {
+    e.preventDefault(); // Necessary to allow drop
+    const draggingPanel = document.querySelector('.dragging');
+    const container = draggingPanel.parentNode;
+    const panels = Array.from(container.children);
+    const currentPanel = e.currentTarget;
+
+    const draggingIndex = panels.indexOf(draggingPanel);
+    const currentIndex = panels.indexOf(currentPanel);
+
+    if (draggingIndex < currentIndex) {
+        container.insertBefore(draggingPanel, currentPanel.nextSibling);
+    } else {
+        container.insertBefore(draggingPanel, currentPanel);
+    }
+};
+
+
+const handleDrop = (e) => {
+    e.preventDefault(); // Prevent default drop behavior
+    const draggingPanel = document.querySelector('.dragging');
+    draggingPanel.classList.remove('dragging');
+
+    // Optional: Update dataset indices or any other state if necessary
+};
+
+
+const handleItemClick = async (panelTitle, fullPath) => {
+
+    // if (panelTitle === 'Scripts') executeScriptWithNoExit(type, fullPath);
 
     if (panelTitle === 'Programs') openFile(fullPath);
 
     if (panelTitle === 'Folders') openFolder(fullPath);
 
-};
+
+    if (panelTitle === 'Files') {
+
+        const fileName = path.basename(fullPath);
+        const scriptFile = isThisScriptFile(fullPath);
+
+        console.log('isThisScriptFile(fullPath)' + scriptFile);
+
+        if (scriptFile) {
+            const result = await ipcRenderer.invoke('open-dialog', {
+                type: 'question',
+                title: 'Script File Detected !',
+                message: `What would you like to do with ${fileName} ? `,
+                detail: 'Run it or Open it to view its content ?',
+                buttons: ['Open', 'Run'],
+                // icon: 'path/to/your/icon.png'
+                // checkboxLabel: 'Remember My Choice !'
+            })
+
+            if (result.response === 0) {
+                openFile(fullPath);
+
+            }
+            else if (result.response === 1) {
+                executeScriptWithNoExit(fullPath);
+            }
+
+            return;
+        }
+        openFile(fullPath);
+    };
+}
+
+
+
+
+
 
 const addItemToPanel = (panelTitle, itemText, type, fullPath, imgSrc) => {
 
@@ -59,23 +157,28 @@ const addItemToPanel = (panelTitle, itemText, type, fullPath, imgSrc) => {
 
     newItem.classList.add('item');
     newItem.title = type;
-    newItem.addEventListener('click', () => handleItemClick(panelTitle, type, fullPath))
+    newItem.style.cursor = 'pointer';
 
+    newItem.addEventListener('click', () => handleItemClick(panelTitle, fullPath));
 
-    newImg.id = 'imgExe'
+    // Style the image
+    newImg.id = 'imgExe';
     newImg.src = imgSrc;
+    newImg.className = "icon";
     newImg.onerror = () => {
         const randomIndex = Math.floor(Math.random() * fallbackImages.length);
         newImg.src = fallbackImages[randomIndex];
     };
-
     newImg.alt = itemText;
+    newImg.style.objectFit = 'cover';
+    newImg.style.borderRadius = panelTitle !== 'Files' ? '8px' : '0px';
+
     newText.textContent = itemText;
     newItem.appendChild(newImg);
     newItem.appendChild(newText);
     newItem.appendChild(br);
     itemsContainer.appendChild(newItem);
-}
+};
 
 
 const addFolderIfNeeded = (desktopFolders) => {
@@ -100,15 +203,26 @@ const addFolderIfNeeded = (desktopFolders) => {
 
     return originalDesktopFolders;
 }
+
+
+
 document.addEventListener('DOMContentLoaded', async () => {
 
     initializePanels();
     const { files, folders } = await getFolderAndFiles(desktopPath);
-    // console.info('Files and Folders :', files, folders);
     const shortcutFiles = files.filter(file => file.name.endsWith('.lnk'));
-    // console.log('Shortcut Files :', shortcutFiles);
+    const restFiles = files.filter(file => !file.name.endsWith('.lnk') && !file.name.endsWith('.ini'));
+    console.log(restFiles);
+
     const desktopFolders = addFolderIfNeeded(folders);
-    // console.info('Desktop Folders :', desktopFolders);
+
+
+    restFiles.forEach(({ name, fullPath, lastModified }) => {
+        const iconName = name.split('.').pop().toLowerCase();
+        const imgSrc = path.join(userHome, 'organizeYourDesktop', 'img', 'fileIcons', iconName + '.svg');
+        const title = `${name}\nLastModified : ${lastModified || 'unknown'}`;
+        addItemToPanel('Files', name.toLowerCase(), title, fullPath, imgSrc);
+    });
 
 
     desktopFolders.forEach(({ name, fullPath, lastModified }, index) => {
@@ -118,51 +232,37 @@ document.addEventListener('DOMContentLoaded', async () => {
         addItemToPanel('Folders', name.toLowerCase(), title, fullPath, imgSrc);
     });
 
-    // console.log('shortcutFiles Path :', shortcutFiles);
-
-    shortcutFiles.forEach(async ({ fullPath: shortcutPath, name }) => {
-    // shortcutFiles.splice(6, 8).forEach(async ({ fullPath: shortcutPath, name }) => {
-        shortcut.query(shortcutPath, (async (err, { target }) => {
-
-            // console.log('Shortcut Info :', shortcutInfo.desc);
-
-            if (err) {
-                console.error(`Error reading shortcut : ${err.message}`);
-                return;
-            }
-
-            const imgPathDefault = path.join(userHome, 'organizeYourDesktop', 'img', name.split(' ')[0] + '.png');
-            // console.log('Img Exists :', imgPathDefault);
 
 
-            // const exeFile = { location: shortcutInfo.target, name: path.basename(shortcutPath).split('.')[0] };
-            // if (target.includes('86')) return;
+    for (let i = 0; i < shortcutFiles.length; i++) {
 
-            // try {
-            
-            // if (false) {
-            if (!fs.existsSync(imgPathDefault)) {
-                console.log('Extracting Icon from :', target);
-                fs.mkdirSync(path.join(userHome, 'organizeYourDesktop', 'img'), { recursive: true });
-                process.env.EXE_PATH = target;
-                // const Path = { '-Path': target };
-                // const Destination = { '-Destination': path.join(userHome, 'organizeYourDesktop', 'img', name + '.png') };
-                await runPowerShellFile('extractIconFromExe.ps1');
-
-            }
-            // } catch (error) {
-            //     console.log('Error :', error);
-
-            // }
-
-            addItemToPanel('Programs', name, name.split(' ')[0], shortcutPath, imgPathDefault);
-
-        }));
-
-    });
+        const { fullPath: shortcutPath } = shortcutFiles[i];
+        const shortcutLink = hmcWin32.getShortcutLink(shortcutPath);
+        const exePath = shortcutLink.icon || shortcutLink.path || shortcutLink.cwd;
+        const iconName = path.basename(exePath, path.extname(exePath));
+        const imgPathDefault = path.join(userHome, 'organizeYourDesktop', 'img', 'exe', iconName + '.png');
 
 
-    // const desktopFiles = getAllFileRecursively(desktopPath);
+        if (!fs.existsSync(exePath)) {
+            console.warn(`Not existsSync : ` + exePath);
+            continue;
+        }
+
+        if (fs.existsSync(imgPathDefault)) {
+            addItemToPanel('Programs', '', iconName, shortcutPath, imgPathDefault);
+            continue;
+        }
+
+        const defaultImg = 'https://cdn.icon-icons.com/icons2/17/PNG/256/windows_win_2248.png';
+        await runPowerShellFile('extractIconFromExe.ps1');
+        addItemToPanel('Programs', '', iconName, shortcutPath, defaultImg);
+    }
+
+
+
+
+
+
     // const scriptFiles = filterScriptFiles(desktopFiles);
 
 

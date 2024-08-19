@@ -1,17 +1,11 @@
 
 
 
-const fs = require('fs');
-const fsPromises = require('fs').promises;
-const path = require('path');
 const { join } = require('path');
 const { exec } = require('child_process');
+const fsPromises = require('fs').promises;
 const { readdir, stat } = require('fs/promises');
-
-
-
-
-
+const fs = require('fs'), path = require('path');
 
 
 
@@ -20,6 +14,12 @@ const ignoreList = [
     'temp', 'tmp', 'out', 'build', '.idea', '.vscode',
     '.cache', 'env',
 ];
+
+
+const isThisScriptFile = (fileName) => {
+    const scriptExtensions = ['.js', '.py', '.bat', '.ps1'];
+    return scriptExtensions.some(ext => fileName.endsWith(ext));
+};
 
 const getAllDirectories = async (dirPath) => {
 
@@ -118,7 +118,7 @@ const filterScriptFiles = (files) => {
 
 
 const openFile = (filePath) => {
-    console.log(filePath);
+
     exec(`"${filePath}"`, (error) => {
         if (error) {
             console.error('Failed to open the file:', error);
@@ -141,5 +141,9 @@ const openFolder = (folderLocation) => {
 };
 
 
-module.exports = { getAllFileRecursively, filterScriptFiles, getAllDirectories, openFile, openFolder, getFolderAndFiles };
+module.exports = {
+    getAllFileRecursively, filterScriptFiles,
+    getAllDirectories, openFile, openFolder,
+    getFolderAndFiles, isThisScriptFile
+};
 
