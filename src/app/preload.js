@@ -13,31 +13,6 @@ const { executeScriptWithNoExit, runPowerShellFile } = require('../utils/childPr
 
 
 
-// const initializePanels = () => {
-
-//     const container = document.querySelector('.container');
-//     const panels = ['Files', 'Programs', 'Folders'];
-//     // const panels = ['Scripts', 'Programs', 'Folders'];
-
-//     panels.forEach(title => {
-
-//         const panel = document.createElement('div');
-//         panel.classList.add('panel');
-
-//         const panelTitleDiv = document.createElement('div');
-//         panelTitleDiv.classList.add('panel-title');
-//         panelTitleDiv.textContent = title;
-
-//         const itemsDiv = document.createElement('div');
-//         itemsDiv.classList.add('items');
-
-//         panel.appendChild(panelTitleDiv);
-//         panel.appendChild(itemsDiv);
-//         container.appendChild(panel);
-//     });
-// };
-
-
 const initializePanels = () => {
     const container = document.querySelector('.container');
     const panels = ['Files', 'Programs', 'Folders'];
@@ -92,8 +67,6 @@ const handleDrop = (e) => {
     e.preventDefault(); // Prevent default drop behavior
     const draggingPanel = document.querySelector('.dragging');
     draggingPanel.classList.remove('dragging');
-
-    // Optional: Update dataset indices or any other state if necessary
 };
 
 
@@ -163,6 +136,7 @@ const addItemToPanel = (panelTitle, itemText, type, fullPath, imgSrc) => {
 
     // Style the image
     newImg.id = 'imgExe';
+    // https://github.com/dmhendricks/file-icon-vectors
     newImg.src = imgSrc;
     newImg.className = "icon";
     newImg.onerror = () => {
